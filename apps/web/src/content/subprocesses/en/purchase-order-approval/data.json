@@ -1,0 +1,8 @@
+{
+  "title": "Purchase Order Approval",
+  "description": "Multi-level approval workflow for purchase orders with budget validation and authorization routing",
+  "tags": ["finance", "procurement", "approval", "budgeting"],
+  "complexity": "mid",
+  "author": "subprocess-hub",
+  "published": "2024-01-25"
+}

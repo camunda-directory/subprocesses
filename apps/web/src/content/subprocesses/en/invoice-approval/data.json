@@ -1,0 +1,8 @@
+{
+  "title": "Invoice Approval Process",
+  "description": "A simple subprocess for reviewing and approving invoices with automatic payment processing",
+  "tags": ["finance", "approval", "automation"],
+  "complexity": "low",
+  "author": "subprocess-hub",
+  "published": "2024-01-15"
+}
