@@ -17,16 +17,24 @@ const processes = await Promise.all(
     // pathParts is ["en", "invoice-approval", "data"]
     // We want just the process name without locale and "data"
     const processId = pathParts.slice(1, -1).join("-");
-    
+
     // Load BPMN XML file
-    const bpmnPath = join(process.cwd(), "src", "content", "subprocesses", pathParts[0], pathParts[1], "process.bpmn");
+    const bpmnPath = join(
+      process.cwd(),
+      "src",
+      "content",
+      "subprocesses",
+      pathParts[0],
+      pathParts[1],
+      "process.bpmn"
+    );
     let bpmnXml: string | undefined;
     try {
       bpmnXml = await readFile(bpmnPath, "utf-8");
     } catch (error) {
       console.warn(`Could not load BPMN file for ${processId}:`, error);
     }
-    
+
     return {
       id: processId,
       title: subprocess.data.title,

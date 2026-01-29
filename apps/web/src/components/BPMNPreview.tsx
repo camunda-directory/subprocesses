@@ -18,7 +18,7 @@ export default function BPMNPreview({ xml, className = "" }: BPMNPreviewProps) {
     import("bpmn-js/lib/Viewer")
       .then((module) => {
         const BpmnViewer = module.default;
-        
+
         viewerInstance = new BpmnViewer({
           container: containerRef.current!,
         });

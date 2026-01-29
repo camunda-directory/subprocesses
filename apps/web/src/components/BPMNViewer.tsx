@@ -25,8 +25,8 @@ export default function BPMNViewer({ xml, className = "" }: BPMNViewerProps) {
     viewer
       .importXML(xml)
       .then(() => {
-        const canvas = viewer.get("canvas") as { 
-          zoom: (level: string | number, position?: string | { x: number; y: number }) => void 
+        const canvas = viewer.get("canvas") as {
+          zoom: (level: string | number, position?: string | { x: number; y: number }) => void;
         };
         canvas.zoom("fit-viewport", "auto");
       })

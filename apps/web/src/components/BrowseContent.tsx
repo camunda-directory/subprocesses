@@ -20,6 +20,42 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState<Record<string, string[]>>({});
 
+  // Dynamically generate filter groups from processes
+  const filterGroups = useMemo(() => {
+    // Collect all unique tags
+    const allTags = new Set<string>();
+    for (const process of processes) {
+      for (const tag of process.tags) {
+        // Filter out empty or whitespace-only tags and normalize to lowercase
+        if (tag && tag.trim()) {
+          allTags.add(tag.toLowerCase());
+        }
+      }
+    }
+
+    // Sort tags alphabetically and capitalize first letter
+    const sortedTags = Array.from(allTags).sort();
+    const categoryOptions = sortedTags.map((tag) => ({
+      label: tag.charAt(0).toUpperCase() + tag.slice(1),
+      value: tag,
+    }));
+
+    return [
+      {
+        title: "Category",
+        options: categoryOptions,
+      },
+      {
+        title: "Complexity",
+        options: [
+          { label: "Simple", value: "low" },
+          { label: "Moderate", value: "mid" },
+          { label: "Complex", value: "high" },
+        ],
+      },
+    ];
+  }, [processes]);
+
   // Filter processes based on selected filters
   const filteredProcesses = useMemo(() => {
     let result = processes;
@@ -27,15 +63,13 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
     // Filter by category (tags)
     if (filters.category && filters.category.length > 0) {
       result = result.filter((process) =>
-        process.tags.some((tag) => filters.category.includes(tag))
+        process.tags.some((tag) => filters.category.includes(tag.toLowerCase()))
       );
     }
 
     // Filter by complexity
     if (filters.complexity && filters.complexity.length > 0) {
-      result = result.filter((process) =>
-        filters.complexity.includes(process.complexity)
-      );
+      result = result.filter((process) => filters.complexity.includes(process.complexity));
     }
 
     return result;
@@ -47,6 +81,7 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onFilterChange={setFilters}
+        filterGroups={filterGroups}
       />
 
       <div className="flex-1">
@@ -137,9 +172,7 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              <h3 className="mt-2 text-sm font-medium text-white">
-                No processes found
-              </h3>
+              <h3 className="mt-2 text-sm font-medium text-white">No processes found</h3>
               <p className="mt-1 text-sm text-gray-400">
                 Try adjusting your filters to see more results.
               </p>

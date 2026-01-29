@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState } from "react";
 
 interface ProcessActionsProps {
-  bpmnXml: string
-  githubUrl?: string
-  processName: string
+  bpmnXml: string;
+  githubUrl?: string;
+  processName: string;
 }
 
 export default function ProcessActions({
@@ -11,34 +11,34 @@ export default function ProcessActions({
   githubUrl = "https://github.com/camunda-directory/subprocesses/tree/main/apps/web/src/content/subprocesses/en/invoice-approval",
   processName,
 }: ProcessActionsProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
   const handleDownload = () => {
     // Create a blob from the BPMN XML
-    const blob = new Blob([bpmnXml], { type: "application/xml" })
-    const url = URL.createObjectURL(blob)
+    const blob = new Blob([bpmnXml], { type: "application/xml" });
+    const url = URL.createObjectURL(blob);
 
     // Create a temporary anchor element and trigger download
-    const link = document.createElement("a")
-    link.href = url
-    link.download = `${processName}.bpmn`
-    document.body.appendChild(link)
-    link.click()
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${processName}.bpmn`;
+    document.body.appendChild(link);
+    link.click();
 
     // Cleanup
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
-  }
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(bpmnXml)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(bpmnXml);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy:", err)
+      console.error("Failed to copy:", err);
     }
-  }
+  };
 
   return (
     <div className="flex flex-wrap gap-3">
@@ -121,5 +121,5 @@ export default function ProcessActions({
         Edit on GitHub
       </a>
     </div>
-  )
+  );
 }
