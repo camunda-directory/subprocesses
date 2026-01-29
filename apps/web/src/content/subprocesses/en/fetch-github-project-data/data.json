@@ -1,0 +1,8 @@
+{
+  "title": "Fetch Github Project Data",
+  "description": "REST connector using the Github GraphQL API to fetch project data for a Project",
+  "tags": ["github", "api", "graphql", "project"],
+  "complexity": "mid",
+  "author": "@urbanisierung",
+  "published": "2024-01-29"
+}
