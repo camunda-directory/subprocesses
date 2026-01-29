@@ -15,34 +15,14 @@ interface FacetedSidebarProps {
   onFilterChange: (filters: Record<string, string[]>) => void;
   isOpen: boolean;
   onToggle: () => void;
+  filterGroups: FilterGroup[];
 }
-
-const filterGroups: FilterGroup[] = [
-  {
-    title: "Category",
-    options: [
-      { label: "Finance", value: "finance" },
-      { label: "HR", value: "hr" },
-      { label: "Onboarding", value: "onboarding" },
-      { label: "Procurement", value: "procurement" },
-      { label: "Approval", value: "approval" },
-      { label: "Automation", value: "automation" },
-    ],
-  },
-  {
-    title: "Complexity",
-    options: [
-      { label: "Simple", value: "low" },
-      { label: "Moderate", value: "mid" },
-      { label: "Complex", value: "high" },
-    ],
-  },
-];
 
 export default function FacetedSidebar({
   onFilterChange,
   isOpen,
   onToggle,
+  filterGroups,
 }: FacetedSidebarProps) {
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
 
@@ -75,18 +55,13 @@ export default function FacetedSidebar({
   return (
     <>
       {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onToggle}
-        />
-      )}
+      {isOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={onToggle} />}
 
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:sticky lg:top-0 left-0 h-screen w-64 
-          bg-black border-r border-gray-800 z-50
+          fixed lg:sticky lg:top-16 left-0 top-0 h-screen lg:h-[calc(100vh-4rem)] w-64 
+          bg-black border-r border-gray-800 z-40
           transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           overflow-y-auto
@@ -110,15 +85,11 @@ export default function FacetedSidebar({
           <div className="space-y-6">
             {filterGroups.map((group) => (
               <div key={group.title}>
-                <h3 className="text-sm font-medium mb-3 text-spacecraft">
-                  {group.title}
-                </h3>
+                <h3 className="text-sm font-medium mb-3 text-spacecraft">{group.title}</h3>
                 <div className="space-y-2">
                   {group.options.map((option) => {
                     const groupKey = group.title.toLowerCase();
-                    const isSelected = (selectedFilters[groupKey] || []).includes(
-                      option.value
-                    );
+                    const isSelected = (selectedFilters[groupKey] || []).includes(option.value);
 
                     return (
                       <label

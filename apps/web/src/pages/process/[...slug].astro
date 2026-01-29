@@ -9,14 +9,14 @@ import { join } from "node:path";
 
 export async function getStaticPaths() {
   const subprocesses = await getCollection("subprocesses");
-  
+
   return subprocesses.map((subprocess) => {
     const pathParts = subprocess.id.split("/");
     // pathParts is like ["en", "invoice-approval", "data"]
     const locale = pathParts[0];
     // We want just the process name, not "data"
     const processId = pathParts.slice(1, -1).join("/");
-    
+
     return {
       params: { slug: processId },
       props: { subprocess, locale },
