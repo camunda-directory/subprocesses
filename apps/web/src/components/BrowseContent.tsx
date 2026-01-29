@@ -26,7 +26,10 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
     const allTags = new Set<string>();
     for (const process of processes) {
       for (const tag of process.tags) {
-        allTags.add(tag);
+        // Filter out empty or whitespace-only tags and normalize to lowercase
+        if (tag && tag.trim()) {
+          allTags.add(tag.toLowerCase());
+        }
       }
     }
 
