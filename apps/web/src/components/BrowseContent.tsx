@@ -63,7 +63,7 @@ export default function BrowseContent({ processes }: BrowseContentProps) {
     // Filter by category (tags)
     if (filters.category && filters.category.length > 0) {
       result = result.filter((process) =>
-        process.tags.some((tag) => filters.category.includes(tag))
+        process.tags.some((tag) => filters.category.includes(tag.toLowerCase()))
       );
     }
 
