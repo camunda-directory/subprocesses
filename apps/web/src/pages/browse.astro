@@ -1,0 +1,53 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProcessCard from "../components/ProcessCard.tsx";
+import BrowseContent from "../components/BrowseContent.tsx";
+import CommandPalette from "../components/CommandPalette.tsx";
+import { getCollection } from "astro:content";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+// Get all subprocesses from content collections
+const allSubprocesses = await getCollection("subprocesses");
+
+// Transform to process format with BPMN XML
+const processes = await Promise.all(
+  allSubprocesses.map(async (subprocess) => {
+    const pathParts = subprocess.id.split("/");
+    // pathParts is ["en", "invoice-approval", "data"]
+    // We want just the process name without locale and "data"
+    const processId = pathParts.slice(1, -1).join("-");
+    
+    // Load BPMN XML file
+    const bpmnPath = join(process.cwd(), "src", "content", "subprocesses", pathParts[0], pathParts[1], "process.bpmn");
+    let bpmnXml: string | undefined;
+    try {
+      bpmnXml = await readFile(bpmnPath, "utf-8");
+    } catch (error) {
+      console.warn(`Could not load BPMN file for ${processId}:`, error);
+    }
+    
+    return {
+      id: processId,
+      title: subprocess.data.title,
+      description: subprocess.data.description,
+      tags: subprocess.data.tags,
+      complexity: subprocess.data.complexity,
+      author: subprocess.data.author,
+      bpmnXml,
+    };
+  })
+);
+
+const commandPaletteData = processes.map((p) => ({
+  id: p.id,
+  title: p.title,
+  tags: p.tags,
+  complexity: p.complexity,
+}));
+---
+
+<BaseLayout title="Browse Processes - Subprocess Hub">
+  <BrowseContent client:load processes={processes} />
+  <CommandPalette client:only="react" processes={commandPaletteData} />
+</BaseLayout>

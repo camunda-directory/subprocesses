@@ -1,0 +1,82 @@
+---
+// Giscus Comments Integration
+// This component uses GitHub Discussions as a comment backend
+// Configure your repo settings at https://giscus.app/
+
+interface Props {
+  repo?: string;
+  repoId?: string;
+  category?: string;
+  categoryId?: string;
+  mapping?: string;
+  theme?: string;
+}
+
+const {
+  repo = "camunda-directory/subprocesses",
+  repoId = "R_kgDORDoulg", // Get from https://giscus.app/
+  category = "Comments",
+  categoryId = "DIC_kwDORDouls4C1kIo", // Get from https://giscus.app/
+  mapping = "pathname",
+  theme = "preferred_color_scheme",
+} = Astro.props;
+---
+
+<div class="giscus-container">
+  <script
+    src="https://giscus.app/client.js"
+    data-repo={repo}
+    data-repo-id={repoId}
+    data-category={category}
+    data-category-id={categoryId}
+    data-mapping={mapping}
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme={theme}
+    data-lang="en"
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async></script>
+</div>
+
+<script>
+  // Sync Giscus theme with dark mode toggle
+  function updateGiscusTheme() {
+    const isDark = document.documentElement.classList.contains("dark");
+    const theme = isDark ? "dark" : "light";
+
+    const iframe = document.querySelector<HTMLIFrameElement>(
+      "iframe.giscus-frame",
+    );
+    if (iframe) {
+      iframe.contentWindow?.postMessage(
+        { giscus: { setConfig: { theme } } },
+        "https://giscus.app",
+      );
+    }
+  }
+
+  // Update theme when page loads
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(updateGiscusTheme, 1000);
+  });
+
+  // Listen for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === "class") {
+        updateGiscusTheme();
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, { attributes: true });
+</script>
+
+<style>
+  .giscus-container {
+    margin-top: 3rem;
+  }
+</style>

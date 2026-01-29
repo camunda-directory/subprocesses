@@ -1,0 +1,195 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BPMNViewer from "../../components/BPMNViewer.tsx";
+import ProcessActions from "../../components/ProcessActions.tsx";
+import Comments from "../../components/Comments.astro";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+export async function getStaticPaths() {
+  const subprocesses = await getCollection("subprocesses");
+  
+  return subprocesses.map((subprocess) => {
+    const pathParts = subprocess.id.split("/");
+    // pathParts is like ["en", "invoice-approval", "data"]
+    const locale = pathParts[0];
+    // We want just the process name, not "data"
+    const processId = pathParts.slice(1, -1).join("/");
+    
+    return {
+      params: { slug: processId },
+      props: { subprocess, locale },
+    };
+  });
+}
+
+interface Props {
+  subprocess: CollectionEntry<"subprocesses">;
+  locale: string;
+}
+
+const { subprocess, locale } = Astro.props;
+const { data } = subprocess;
+
+// Read BPMN XML file
+// The subprocess.id is like "en/invoice-approval/data", we need path without "data"
+const idParts = subprocess.id.split("/");
+const pathWithoutData = idParts.slice(0, -1).join("/"); // Remove "data" from the end
+const bpmnPath = join(process.cwd(), "src/content/subprocesses", pathWithoutData, "process.bpmn");
+let bpmnXml = "";
+try {
+  bpmnXml = await readFile(bpmnPath, "utf-8");
+} catch (error) {
+  console.error(`Failed to read BPMN file for ${subprocess.id}:`, error);
+}
+
+// Get process ID (just the name without locale)
+const processNameParts = pathWithoutData.split("/").slice(1); // Remove locale
+const processId = processNameParts.join("-");
+const githubUrl = `https://github.com/camunda-directory/subprocesses/blob/main/apps/web/src/content/subprocesses/${pathWithoutData}/process.bpmn`;
+
+// Format date
+const publishedDate = new Date(data.published).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+// Get complexity badge color
+const complexityColors = {
+  low: "text-greenmunda bg-greenmunda/10 border-greenmunda",
+  mid: "text-orangemunda bg-orangemunda/10 border-orangemunda",
+  high: "text-red-600 bg-red-600/10 border-red-600",
+};
+---
+
+<BaseLayout title={`${data.title} - Subprocess Hub`}>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+      <ol class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+        <li><a href="/" class="hover:text-orangemunda transition-colors">Home</a></li>
+        <li>/</li>
+        <li><a href="/browse" class="hover:text-orangemunda transition-colors">Browse</a></li>
+        <li>/</li>
+        <li class="text-gray-900 dark:text-white font-medium">{data.title}</li>
+      </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="mb-8">
+      <h1 class="text-4xl lg:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
+        {data.title}
+      </h1>
+      <p class="text-xl text-gray-600 dark:text-gray-400 mb-6">
+        {data.description}
+      </p>
+
+      <!-- Tags and Metadata -->
+      <div class="flex flex-wrap items-center gap-4">
+        <!-- Tags -->
+        <div class="flex flex-wrap gap-2">
+          {
+            data.tags.map((tag) => (
+              <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full border border-gray-200 dark:border-gray-700">
+                {tag}
+              </span>
+            ))
+          }
+        </div>
+
+        <!-- Complexity Badge -->
+        <span
+          class={`px-3 py-1 text-sm font-medium rounded-full border ${complexityColors[data.complexity]}`}
+        >
+          {data.complexity === "low" ? "Simple" : data.complexity === "mid" ? "Moderate" : "Complex"}
+        </span>
+      </div>
+
+      <!-- Metadata -->
+      <div class="mt-4 flex flex-wrap items-center gap-6 text-sm text-gray-600 dark:text-gray-400">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>By {data.author}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>Published {publishedDate}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BPMN Viewer -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Process Diagram</h2>
+      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+        {bpmnXml ? (
+          <BPMNViewer client:only="react" xml={bpmnXml} />
+        ) : (
+          <div class="p-8 text-center text-gray-600 dark:text-gray-400">
+            No BPMN diagram available
+          </div>
+        )}
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mb-12">
+      <h3 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Actions</h3>
+      <ProcessActions
+        client:load
+        bpmnXml={bpmnXml}
+        processName={processId}
+        githubUrl={githubUrl}
+      />
+    </div>
+
+    <!-- Description Section -->
+    <div class="mb-12 prose dark:prose-invert max-w-none">
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">About This Process</h2>
+      <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-6">
+        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+          {data.description}
+        </p>
+      </div>
+    </div>
+
+    <!-- Comments -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Discussions</h2>
+      <Comments />
+    </div>
+
+    <!-- Related Processes -->
+    <div>
+      <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Explore More Processes</h2>
+      <a
+        href="/browse"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-orangemunda text-white font-medium rounded-lg hover:bg-orangemunda/90 transition-colors"
+      >
+        <span>Browse All Processes</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</BaseLayout>

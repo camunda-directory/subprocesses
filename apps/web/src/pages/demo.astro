@@ -1,0 +1,88 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BPMNViewer from "../components/BPMNViewer";
+import ProcessActions from "../components/ProcessActions";
+import Comments from "../components/Comments.astro";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+// Read the BPMN file
+const bpmnPath = join(process.cwd(), "src/content/subprocesses/en/invoice-approval/process.bpmn");
+const bpmnXml = await readFile(bpmnPath, "utf-8");
+---
+
+<BaseLayout title="Invoice Approval Process - Subprocess Hub">
+  <div class="max-w-screen-xl mx-auto px-6 lg:px-12 py-12">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-4 text-gray-900 dark:text-white">Invoice Approval Process</h1>
+      <p class="text-lg text-gray-600 dark:text-gray-400 mb-4">
+        A simple subprocess for reviewing and approving invoices with automatic payment processing
+      </p>
+      <div class="flex gap-2 flex-wrap">
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full">finance</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full">approval</span>
+        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm rounded-full">automation</span>
+        <span class="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-sm rounded-full font-medium">
+          Simple
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4">
+          <BPMNViewer client:only="react" xml={bpmnXml} />
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <ProcessActions 
+          client:load 
+          bpmnXml={bpmnXml} 
+          processName="invoice-approval"
+          githubUrl="https://github.com/camunda-directory/subprocesses/tree/main/apps/web/src/content/subprocesses/en/invoice-approval"
+        />
+
+        <div class="bg-white dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-800">
+          <h3 class="font-semibold mb-2 text-gray-900 dark:text-white">Metadata</h3>
+          <dl class="space-y-2 text-sm">
+            <div>
+              <dt class="text-gray-600 dark:text-gray-400">Author</dt>
+              <dd class="font-medium text-gray-900 dark:text-gray-200">subprocess-hub</dd>
+            </div>
+            <div>
+              <dt class="text-gray-600 dark:text-gray-400">Published</dt>
+              <dd class="font-medium text-gray-900 dark:text-gray-200">January 15, 2024</dd>
+            </div>
+            <div>
+              <dt class="text-gray-600 dark:text-gray-400">Complexity</dt>
+              <dd class="font-medium text-gray-900 dark:text-gray-200">Low</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12">
+      <h2 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">Process Description</h2>
+      <div class="bg-white dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-800 prose dark:prose-invert max-w-none">
+        <p>
+          This subprocess handles the complete invoice approval workflow:
+        </p>
+        <ol>
+          <li><strong>Invoice Received:</strong> The process starts when an invoice is received</li>
+          <li><strong>Review Invoice:</strong> A user reviews the invoice details</li>
+          <li><strong>Approval Decision:</strong> The reviewer decides whether to approve or reject</li>
+          <li><strong>Process Payment:</strong> If approved, payment is automatically processed</li>
+          <li><strong>Completion:</strong> The process ends with either payment processed or invoice rejected</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Comments & Discussion</h2>
+      <Comments />
+    </div>
+  </div>
+</BaseLayout>

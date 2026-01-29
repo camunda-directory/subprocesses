@@ -1,0 +1,26 @@
+{
+  "name": "subprocess-directory",
+  "version": "1.0.0",
+  "description": "A catalog of BPMN subprocesses",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "check": "turbo run check",
+    "verify": "pnpm run lint && pnpm run format && pnpm run check && pnpm run build"
+  },
+  "keywords": ["bpmn", "subprocess", "catalog"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@biomejs/biome": "^1.9.4",
+    "astro": "^5.0.0",
+    "turbo": "^2.2.3",
+    "typescript": "^5.6.3"
+  }
+}

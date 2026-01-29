@@ -1,0 +1,113 @@
+---
+import "../styles/global.css";
+import "@fontsource/ibm-plex-sans/400.css";
+import "@fontsource/ibm-plex-sans/500.css";
+import "@fontsource/ibm-plex-sans/600.css";
+import "@fontsource/ibm-plex-sans/700.css";
+import "@fontsource/jetbrains-mono/400.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "A catalog of reusable BPMN subprocesses" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script is:inline>
+      // Check for saved theme preference or default to 'dark'
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    </script>
+  </head>
+  <body class="bg-spacecraft text-gray-900 dark:bg-black dark:text-white font-sans transition-colors">
+    <nav class="sticky top-0 bg-black border-b border-gray-800 h-16 z-50">
+      <div class="max-w-screen-xl mx-auto px-6 lg:px-12 h-full flex items-center justify-between">
+        <div class="flex items-center gap-8">
+          <a href="/" class="font-bold text-xl text-white flex items-center gap-2">
+            <img src="/logo.svg" alt="Subprocess Hub Logo" class="w-8 h-8" />
+            <span>Subprocess Hub</span>
+          </a>
+        </div>
+        <div class="flex items-center gap-4">
+          <button
+            id="theme-toggle"
+            class="p-2 rounded-lg hover:bg-gray-800 transition-colors text-white"
+            aria-label="Toggle dark mode"
+          >
+            <svg class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+            </svg>
+            <svg class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+            </svg>
+          </button>
+          <a
+            href="https://github.com/camunda-directory/subprocesses"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-4 py-2 bg-orangemunda text-white rounded hover:opacity-90 transition-opacity"
+          >
+            Submit Process
+          </a>
+        </div>
+      </div>
+    </nav>
+    
+    <main class="min-h-screen">
+      <slot />
+    </main>
+
+    <footer class="bg-black text-white py-8 mt-16">
+      <div class="max-w-screen-xl mx-auto px-6 lg:px-12 text-center">
+        <p class="text-sm text-gray-400">
+          Subprocess Hub - Browse like Netflix. Drop it in. Done.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const themeToggle = document.getElementById('theme-toggle');
+      
+      themeToggle?.addEventListener('click', () => {
+        const html = document.documentElement;
+        const isDark = html.classList.contains('dark');
+        
+        if (isDark) {
+          html.classList.remove('dark');
+          localStorage.setItem('theme', 'light');
+        } else {
+          html.classList.add('dark');
+          localStorage.setItem('theme', 'dark');
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    box-sizing: border-box;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .bpmn-container {
+    width: 100%;
+  }
+</style>
